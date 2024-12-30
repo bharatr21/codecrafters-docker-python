@@ -20,11 +20,16 @@ def setup_chroot_environment(command, args):
 
         # Execute the command inside the chroot jail
         command = os.path.join("/", os.path.basename(command))
-        result = subprocess.run([command, *args], capture_output=True)
+        result = subprocess.run(
+                [command, *args],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
 
         # Pipe the outputs (stdout and stderr) to the parent process
-        sys.stdout.write(result.stdout.decode("utf-8"))
-        sys.stderr.write(result.stderr.decode("utf-8"))
+        sys.stdout.write(result.stdout)
+        sys.stderr.write(result.stderr)
 
         return_code = result.returncode
         return return_code
