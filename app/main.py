@@ -3,8 +3,9 @@ import sys
 import os
 import shutil
 import tempfile
+import ctypes
 
-def setup_chroot_environment(command, args):
+def setup_environment(command, args):
     """
     Sets up a chroot environment in a temporary directory and executes a command.
     Args:
@@ -13,6 +14,8 @@ def setup_chroot_environment(command, args):
     """
     # Create a temporary directory for the chroot environment
     chroot_dir = tempfile.mkdtemp()
+    libc = ctypes.cdll.LoadLibrary("libc.so.6")
+    libc.unshare(0x20000000)
     try:
 
         shutil.copy(command, chroot_dir)
@@ -35,7 +38,6 @@ def setup_chroot_environment(command, args):
         return return_code
 
     finally:
-        # Clean up the temporary directory
         if os.path.exists(chroot_dir):
             shutil.rmtree(chroot_dir)
 
@@ -44,7 +46,7 @@ def main():
     command = sys.argv[3]
     args = sys.argv[4:]
     
-    return_code = setup_chroot_environment(command, args)
+    return_code = setup_environment(command, args)
     sys.exit(return_code)
 
 
