@@ -15,10 +15,10 @@ def setup_environment(command, args):
     # Create a temporary directory for the chroot environment
     chroot_dir = tempfile.mkdtemp()
     libc = ctypes.cdll.LoadLibrary("libc.so.6")
-    libc.unshare(0x20000000)
+    CLONE_NEWNS = 0x20000000
+    libc.unshare(CLONE_NEWNS)
     try:
-
-        shutil.copy(command, chroot_dir)
+        shutil.copy2(command, chroot_dir)
         os.chroot(chroot_dir)
 
         # Execute the command inside the chroot jail
